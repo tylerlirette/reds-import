@@ -55,10 +55,18 @@ Install the custom plugin in [`wordpress/reds-inventory/`](wordpress/reds-invent
 
 1. Zip the `reds-inventory` folder (the folder that contains `reds-inventory.php`).
 2. In WordPress: **Plugins → Add New → Upload Plugin** → activate **Red's Inventory**.
-3. Edit the inventory page in Divi, remove the iframe, add a **Shortcode** module with:
+3. Edit the inventory page in Divi, remove the iframe, add a **Shortcode** module:
+
+**Main lot** ($10k+):
 
 ```
-[dealership_inventory]
+[dealership_inventory tier="main"]
+```
+
+**Budget Center** (under $10k):
+
+```
+[dealership_inventory tier="budget"]
 ```
 
 The plugin fetches `inventory.json`, caches it for 2 hours, and renders a filterable card grid. Cards open AutoFind vehicle pages in a new tab.
