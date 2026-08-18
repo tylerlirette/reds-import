@@ -48,3 +48,17 @@ The JSON URL must be publicly fetchable so WordPress can load it. If this repo i
 Vehicle detail links use:
 
 `https://www.autofind.com/dealer/details/{DealerID}/{VIN}`
+
+## WordPress (Divi)
+
+Install the custom plugin in [`wordpress/reds-inventory/`](wordpress/reds-inventory/) — no premium plugins and no Divi parent-theme edits.
+
+1. Zip the `reds-inventory` folder (the folder that contains `reds-inventory.php`).
+2. In WordPress: **Plugins → Add New → Upload Plugin** → activate **Red's Inventory**.
+3. Edit the inventory page in Divi, remove the iframe, add a **Shortcode** module with:
+
+```
+[dealership_inventory]
+```
+
+The plugin fetches `inventory.json`, caches it for 2 hours, and renders a filterable card grid. Cards open AutoFind vehicle pages in a new tab.
