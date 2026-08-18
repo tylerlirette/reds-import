@@ -44,7 +44,7 @@
   function vehicleMatchesPrice(vehicle, minPrice, maxPrice) {
     const price = vehicle.price;
     if (price == null || price === "") {
-      return minPrice == null;
+      return maxPrice == null;
     }
     if (minPrice != null && price < minPrice) {
       return false;

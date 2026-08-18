@@ -2,13 +2,13 @@
 /**
  * Plugin Name: Red's Inventory
  * Description: Styled, filterable vehicle grid from the GitHub-hosted inventory JSON feed. Use shortcode [dealership_inventory].
- * Version: 1.1.0
+ * Version: 1.1.1
  * Author: Red's Auto
  */
 
 defined('ABSPATH') || exit;
 
-define('REDS_INV_VERSION', '1.1.0');
+define('REDS_INV_VERSION', '1.1.1');
 define('REDS_INV_DIR', plugin_dir_path(__FILE__));
 define('REDS_INV_URL', plugin_dir_url(__FILE__));
 define('REDS_INV_FEED', 'https://tylerlirette.github.io/reds-import/inventory.json');
@@ -70,7 +70,8 @@ function reds_inv_vehicle_matches_price($vehicle, $min_price, $max_price) {
     $price = $vehicle['price'] ?? null;
 
     if ($price === null || $price === '') {
-        return $min_price === null;
+        // Call-for-price vehicles belong on the main lot, not budget.
+        return $max_price === null;
     }
 
     if ($min_price !== null && $price < $min_price) {
