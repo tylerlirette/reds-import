@@ -70,25 +70,21 @@
     const maxPriceInput = root.querySelector('[data-filter="maxPrice"]');
 
     let vehicles = [];
-    let pageDefaults = { minPrice: null, maxPrice: null, tier: "" };
-
-    function applyPageDefaults() {
-      if (minPriceInput && pageDefaults.minPrice != null) {
-        minPriceInput.value = String(pageDefaults.minPrice);
-      }
-      if (maxPriceInput && pageDefaults.maxPrice != null) {
-        maxPriceInput.value = String(pageDefaults.maxPrice);
-      }
-    }
+    let pageLimits = { minPrice: null, maxPrice: null, tier: "", locked: false };
 
     function readFilters() {
+      const useFormPrice = !pageLimits.locked;
       return {
         make: form.make.value,
         model: form.model.value,
         body: form.body.value,
         drivetrain: form.drivetrain.value,
-        minPrice: minPriceInput?.value ? Number(minPriceInput.value) : pageDefaults.minPrice,
-        maxPrice: maxPriceInput?.value ? Number(maxPriceInput.value) : pageDefaults.maxPrice,
+        minPrice: useFormPrice && minPriceInput?.value
+          ? Number(minPriceInput.value)
+          : pageLimits.minPrice,
+        maxPrice: useFormPrice && maxPriceInput?.value
+          ? Number(maxPriceInput.value)
+          : pageLimits.maxPrice,
         sort: form.sort.value,
       };
     }
@@ -198,11 +194,15 @@
       fillSelect(bodySelect, unique(vehicles.map((v) => v.bodySegment)), "All body types");
       fillSelect(driveSelect, unique(vehicles.map((v) => v.driveTrain)), "All drivetrains");
       refreshModels();
-      applyPageDefaults();
     }
 
     function boot(payload) {
-      pageDefaults = payload?.pageDefaults || { minPrice: null, maxPrice: null, tier: "" };
+      pageLimits = payload?.pageLimits || {
+        minPrice: null,
+        maxPrice: null,
+        tier: "",
+        locked: false,
+      };
       vehicles = Array.isArray(payload?.vehicles) ? payload.vehicles : [];
       if (!vehicles.length) {
         error.hidden = false;
@@ -222,7 +222,6 @@
     form.addEventListener("input", render);
     form.querySelector("[data-reset]").addEventListener("click", () => {
       form.reset();
-      applyPageDefaults();
       refreshModels();
       render();
     });
@@ -243,16 +242,22 @@
     fetch(feedUrl)
       .then((res) => res.json())
       .then((data) => {
-        const limits = payload?.pageDefaults || { minPrice: null, maxPrice: null };
+        const limits = payload?.pageLimits || {
+          minPrice: null,
+          maxPrice: null,
+          locked: false,
+        };
         const filtered = (data.vehicles || [])
           .map((vehicle) => ({
             ...vehicle,
             photo: vehicle.photos?.[0] || "",
           }))
-          .filter((vehicle) => vehicleMatchesPrice(vehicle, limits.minPrice, limits.maxPrice));
+          .filter((vehicle) =>
+            vehicleMatchesPrice(vehicle, limits.minPrice, limits.maxPrice)
+          );
 
         boot({
-          pageDefaults: limits,
+          pageLimits: limits,
           vehicles: filtered,
         });
       })

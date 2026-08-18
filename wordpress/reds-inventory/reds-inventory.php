@@ -2,13 +2,13 @@
 /**
  * Plugin Name: Red's Inventory
  * Description: Styled, filterable vehicle grid from the GitHub-hosted inventory JSON feed. Use shortcode [dealership_inventory].
- * Version: 1.1.1
+ * Version: 1.1.2
  * Author: Red's Auto
  */
 
 defined('ABSPATH') || exit;
 
-define('REDS_INV_VERSION', '1.1.1');
+define('REDS_INV_VERSION', '1.1.2');
 define('REDS_INV_DIR', plugin_dir_path(__FILE__));
 define('REDS_INV_URL', plugin_dir_url(__FILE__));
 define('REDS_INV_FEED', 'https://tylerlirette.github.io/reds-import/inventory.json');
@@ -118,10 +118,11 @@ function reds_inv_payload($data, $limits) {
         'count' => count($vehicles),
         'vehicles' => $vehicles,
         'feedUrl' => apply_filters('reds_inventory_feed_url', REDS_INV_FEED),
-        'pageDefaults' => [
+        'pageLimits' => [
             'minPrice' => $limits['min_price'],
             'maxPrice' => $limits['max_price'],
             'tier' => $limits['tier'],
+            'locked' => $limits['tier'] !== '',
         ],
     ];
 }
@@ -162,10 +163,11 @@ function reds_inv_shortcode($atts) {
         'count' => 0,
         'vehicles' => [],
         'feedUrl' => apply_filters('reds_inventory_feed_url', REDS_INV_FEED),
-        'pageDefaults' => [
+        'pageLimits' => [
             'minPrice' => $limits['min_price'],
             'maxPrice' => $limits['max_price'],
             'tier' => $limits['tier'],
+            'locked' => $limits['tier'] !== '',
         ],
         'error' => true,
     ];
@@ -177,12 +179,18 @@ function reds_inv_shortcode($atts) {
         wp_json_encode($payload)
     );
 
-    $hide_min_price = $limits['tier'] === 'main';
-    $hide_max_price = $limits['tier'] === 'budget';
+    $tier_locked = $limits['tier'] !== '';
 
     ob_start();
     ?>
-    <div class="reds-inv" id="<?php echo esc_attr($instance_id); ?>" data-inventory-root>
+    <div
+        class="reds-inv<?php echo $tier_locked ? ' reds-inv--tier-locked' : ''; ?>"
+        id="<?php echo esc_attr($instance_id); ?>"
+        data-inventory-root
+        <?php if ($tier_locked) : ?>
+            data-tier="<?php echo esc_attr($limits['tier']); ?>"
+        <?php endif; ?>
+    >
         <script type="application/json" class="reds-inventory-data"><?php echo $json; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?></script>
 
         <form class="reds-inv__filters" data-filters>
@@ -210,13 +218,11 @@ function reds_inv_shortcode($atts) {
                     <option value="">All drivetrains</option>
                 </select>
             </label>
-            <?php if (!$hide_min_price) : ?>
+            <?php if (!$tier_locked) : ?>
             <label class="reds-inv__field">
                 <span>Min price</span>
                 <input type="number" name="minPrice" data-filter="minPrice" min="0" step="500" placeholder="Any">
             </label>
-            <?php endif; ?>
-            <?php if (!$hide_max_price) : ?>
             <label class="reds-inv__field">
                 <span>Max price</span>
                 <input type="number" name="maxPrice" data-filter="maxPrice" min="0" step="500" placeholder="Any">
