@@ -72,19 +72,32 @@
     let vehicles = [];
     let pageLimits = { minPrice: null, maxPrice: null, tier: "", locked: false };
 
+    function effectivePriceLimits(userMin, userMax) {
+      let minPrice = pageLimits.minPrice ?? null;
+      let maxPrice = pageLimits.maxPrice ?? null;
+
+      if (userMin != null && !Number.isNaN(userMin)) {
+        minPrice = minPrice != null ? Math.max(minPrice, userMin) : userMin;
+      }
+      if (userMax != null && !Number.isNaN(userMax)) {
+        maxPrice = maxPrice != null ? Math.min(maxPrice, userMax) : userMax;
+      }
+
+      return { minPrice, maxPrice };
+    }
+
     function readFilters() {
-      const useFormPrice = !pageLimits.locked;
+      const userMin = minPriceInput?.value ? Number(minPriceInput.value) : null;
+      const userMax = maxPriceInput?.value ? Number(maxPriceInput.value) : null;
+      const { minPrice, maxPrice } = effectivePriceLimits(userMin, userMax);
+
       return {
         make: form.make.value,
         model: form.model.value,
         body: form.body.value,
         drivetrain: form.drivetrain.value,
-        minPrice: useFormPrice && minPriceInput?.value
-          ? Number(minPriceInput.value)
-          : pageLimits.minPrice,
-        maxPrice: useFormPrice && maxPriceInput?.value
-          ? Number(maxPriceInput.value)
-          : pageLimits.maxPrice,
+        minPrice,
+        maxPrice,
         sort: form.sort.value,
       };
     }

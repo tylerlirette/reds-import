@@ -33,4 +33,4 @@ You can also set custom price limits:
 
 Price split defaults: main lot uses `min_price="10000"`, budget uses `max_price="9999"`. Vehicles without a listed price appear on the main lot only.
 
-When `tier="main"` or `tier="budget"` is set, the price range is fixed for that page. Min/max price filters are hidden and cannot be changed by visitors.
+When `tier="main"` or `tier="budget"` is set, the lot split is fixed ($10k+ on main, under $10k on budget). Min/max price filters still appear but only narrow results within that lot — they cannot show vehicles from the other section.

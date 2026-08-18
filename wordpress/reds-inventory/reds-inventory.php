@@ -2,13 +2,13 @@
 /**
  * Plugin Name: Red's Inventory
  * Description: Styled, filterable vehicle grid from the GitHub-hosted inventory JSON feed. Use shortcode [dealership_inventory].
- * Version: 1.1.2
+ * Version: 1.1.3
  * Author: Red's Auto
  */
 
 defined('ABSPATH') || exit;
 
-define('REDS_INV_VERSION', '1.1.2');
+define('REDS_INV_VERSION', '1.1.3');
 define('REDS_INV_DIR', plugin_dir_path(__FILE__));
 define('REDS_INV_URL', plugin_dir_url(__FILE__));
 define('REDS_INV_FEED', 'https://tylerlirette.github.io/reds-import/inventory.json');
@@ -218,7 +218,6 @@ function reds_inv_shortcode($atts) {
                     <option value="">All drivetrains</option>
                 </select>
             </label>
-            <?php if (!$tier_locked) : ?>
             <label class="reds-inv__field">
                 <span>Min price</span>
                 <input type="number" name="minPrice" data-filter="minPrice" min="0" step="500" placeholder="Any">
@@ -227,7 +226,6 @@ function reds_inv_shortcode($atts) {
                 <span>Max price</span>
                 <input type="number" name="maxPrice" data-filter="maxPrice" min="0" step="500" placeholder="Any">
             </label>
-            <?php endif; ?>
             <label class="reds-inv__field">
                 <span>Sort</span>
                 <select name="sort" data-filter="sort">
