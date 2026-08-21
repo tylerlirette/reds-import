@@ -2,13 +2,13 @@
 /**
  * Plugin Name: Red's Inventory
  * Description: Styled, filterable vehicle grid from the GitHub-hosted inventory JSON feed. Use shortcode [dealership_inventory].
- * Version: 1.1.3
+ * Version: 1.1.4
  * Author: Red's Auto
  */
 
 defined('ABSPATH') || exit;
 
-define('REDS_INV_VERSION', '1.1.3');
+define('REDS_INV_VERSION', '1.1.4');
 define('REDS_INV_DIR', plugin_dir_path(__FILE__));
 define('REDS_INV_URL', plugin_dir_url(__FILE__));
 define('REDS_INV_FEED', 'https://tylerlirette.github.io/reds-import/inventory.json');
