@@ -79,6 +79,10 @@ async function loadFixture(relativePath) {
   return parseInventoryBuffer(buffer, filePath);
 }
 
+function sleep(ms) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
 async function downloadFromSftp() {
   const host = process.env.SFTP_HOST;
   const username = process.env.SFTP_USER;
@@ -95,18 +99,40 @@ async function downloadFromSftp() {
   await mkdir(TMP_DIR, { recursive: true });
   const localPath = path.join(TMP_DIR, path.basename(remotePath) || "inventory.csv");
 
-  const client = new SftpClient();
-  try {
-    await client.connect({
-      host,
-      port,
-      username,
-      password,
-      readyTimeout: 30000,
-    });
-    await client.fastGet(remotePath, localPath);
-  } finally {
-    await client.end().catch(() => {});
+  const attempts = 4;
+  let lastError;
+
+  for (let attempt = 1; attempt <= attempts; attempt += 1) {
+    const client = new SftpClient();
+    try {
+      console.log(`SFTP connect attempt ${attempt}/${attempts} to ${host}:${port}`);
+      await client.connect({
+        host,
+        port,
+        username,
+        password,
+        readyTimeout: 60000,
+        retries: 0,
+      });
+      await client.fastGet(remotePath, localPath);
+      lastError = null;
+      break;
+    } catch (error) {
+      lastError = error;
+      const message = error.message || String(error);
+      console.error(`SFTP attempt ${attempt}/${attempts} failed: ${message}`);
+      if (attempt < attempts) {
+        const delayMs = 15000 * 2 ** (attempt - 1);
+        console.log(`Retrying in ${delayMs / 1000}s...`);
+        await sleep(delayMs);
+      }
+    } finally {
+      await client.end().catch(() => {});
+    }
+  }
+
+  if (lastError) {
+    throw lastError;
   }
 
   const buffer = await readFile(localPath);
